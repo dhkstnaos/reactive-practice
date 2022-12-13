@@ -6,7 +6,6 @@ import reactor.core.publisher.Mono;
 public class DifferenceOfJustAndDeferAndFromCallable {
 
     int data = 99;
-
     public int getData(String caller) {
         System.out.println("called by " + caller);
         return data;
