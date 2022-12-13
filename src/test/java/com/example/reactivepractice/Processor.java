@@ -2,6 +2,11 @@ package com.example.reactivepractice;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.*;
+import reactor.core.scheduler.Schedulers;
+
+import java.time.Duration;
+
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 public class Processor {
 
@@ -41,15 +46,31 @@ public class Processor {
         void Emitter_Processor() {
                 //여러 publisher와 subscriber가 가능하다.
                 EmitterProcessor<Long> data = EmitterProcessor.create(1);
-                data.subscribe(t -> System.out.println(t));
+                data.subscribe(t -> System.out.println("1번 구독자:"+t));
                 FluxSink<Long> sink = data.sink();
                 sink.next(10L);
                 sink.next(11L);
                 sink.next(12L);
-                data.subscribe(t -> System.out.println(t));
+                data.subscribe(t -> System.out.println("2번 구독자:"+t));
                 sink.next(13L);
                 sink.next(14L);
                 sink.next(15L);
+        }
+
+        @Test
+        void Emitter_Processor_V2() throws InterruptedException {
+                EmitterProcessor<String> emitter = EmitterProcessor.create();
+                FluxSink<String> sink = emitter.sink();
+                emitter.publishOn(Schedulers.boundedElastic())
+                    .map(String::toUpperCase)
+                    .filter(s -> s.contains("WORLD"))
+                    .delayElements(Duration.of(1000, MILLIS))
+                    .subscribe(System.out::println);
+
+                sink.next("Hello World!");
+                sink.next("Goodbye World");
+                sink.next("Again");
+                Thread.sleep(3000);
         }
 
         @Test
