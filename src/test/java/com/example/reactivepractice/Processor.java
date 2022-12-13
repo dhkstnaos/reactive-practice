@@ -5,6 +5,7 @@ import reactor.core.publisher.*;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
+import java.util.concurrent.Executors;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 
@@ -46,12 +47,12 @@ public class Processor {
         void Emitter_Processor() {
                 //여러 publisher와 subscriber가 가능하다.
                 EmitterProcessor<Long> data = EmitterProcessor.create(1);
-                data.subscribe(t -> System.out.println("1번 구독자:"+t));
+                data.subscribe(t -> System.out.println("1번 구독자:" + t));
                 FluxSink<Long> sink = data.sink();
                 sink.next(10L);
                 sink.next(11L);
                 sink.next(12L);
-                data.subscribe(t -> System.out.println("2번 구독자:"+t));
+                data.subscribe(t -> System.out.println("2번 구독자:" + t));
                 sink.next(13L);
                 sink.next(14L);
                 sink.next(15L);
@@ -75,16 +76,18 @@ public class Processor {
 
         @Test
         void Replay_Processor() {
-
-        }
-
-        @Test
-        void Topic_Processor() {
-
-        }
-
-        @Test
-        void WorkQueue_Processor() {
-
+                /*
+                ReplayProcessor가입자에게 이벤트를 캐싱하고 재생할 수 있는 특수 목적 프로세서
+                마지막 데이터를 캐싱하고 가지고 있는다.
+                 */
+                ReplayProcessor<Long> data = ReplayProcessor.create(3);
+                data.subscribe(t -> System.out.println(t));
+                FluxSink<Long> sink = data.sink();
+                sink.next(10L);
+                sink.next(11L);
+                sink.next(12L);
+                sink.next(13L);
+                sink.next(14L);
+                data.subscribe(t -> System.out.println(t));
         }
 }
