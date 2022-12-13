@@ -57,4 +57,52 @@ public class DifferenceOfJustAndDeferAndFromCallable {
                 .switchIfEmpty(Mono.defer(this::executeWhenEmpty))
                 .subscribe();   // print nothing
     }
+
+    public Mono<String> responseMonoString1() {
+        System.out.println("1: This method returns some string ~!");
+        return Mono.just("some");
+    }
+
+    public Mono<String> responseMonoString2() {
+        System.out.println("2: This method returns some string ~!");
+        return Mono.defer(() -> Mono.just("some"));
+    }
+
+    public Mono<String> responseMonoString3() {
+        System.out.println("3: This method returns some string ~!");
+        return Mono.fromCallable(() -> "some");
+    }
+
+    public String responseString() {
+        System.out.println("4: This method returns some string ~!");
+        return "some";
+    }
+
+    @Test
+    void deferTest() {
+        // A
+        responseMonoString1()
+                .repeat(3)
+                .subscribe(d -> System.out.println("d = " + d));
+
+        // B
+        responseMonoString2()
+                .repeat(3)
+                .subscribe(d -> System.out.println("d = " + d));
+
+        // C
+        responseMonoString3()
+                .repeat(3)
+                .subscribe(d -> System.out.println("d = " + d));
+
+        // D
+        Mono.defer(() -> responseMonoString1())
+                .repeat(3)
+                .subscribe(d -> System.out.println("d = " + d));
+
+        // E
+        Mono.fromCallable(() -> responseString())
+                .repeat(3)
+                .subscribe(d -> System.out.println("d = " + d));
+    }
 }
