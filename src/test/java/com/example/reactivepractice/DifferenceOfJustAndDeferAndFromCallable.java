@@ -7,15 +7,6 @@ public class DifferenceOfJustAndDeferAndFromCallable {
 
     int data = 99;
 
-    Mono<String> externalServiceCall() {
-        return Mono.just("Response");
-    }
-
-    Mono<String> executeWhenEmpty() {
-        System.out.println("Execute When Empty !");
-        return Mono.just("Other-data");
-    }
-
     public int getData(String caller) {
         System.out.println("called by " + caller);
         return data;
@@ -45,6 +36,15 @@ public class DifferenceOfJustAndDeferAndFromCallable {
          */
     }
 
+    Mono<String> externalServiceCall() {
+        return Mono.just("Response");
+    }
+
+    Mono<String> executeWhenEmpty() {
+        System.out.println("Execute When Empty !");
+        return Mono.just("Other-data");
+    }
+
     @Test
     void deferSwitchIfEmptyTest() {
         // (A)
@@ -52,6 +52,7 @@ public class DifferenceOfJustAndDeferAndFromCallable {
                 .switchIfEmpty(executeWhenEmpty())
                 .subscribe();   // print 'Execute When Empty !'
 
+        System.out.println(" next ");
         // (B)
         externalServiceCall()
                 .switchIfEmpty(Mono.defer(this::executeWhenEmpty))
