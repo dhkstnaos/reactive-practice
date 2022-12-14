@@ -86,4 +86,16 @@ public class HandlingReactorErrorTest {
                                                .doOnEach(signal -> log.info("after {}", signal.toString()))
                                                .subscribe();
     }
+
+    @Test
+    public void onErrorReturn() {
+        Mono<String> data = Mono.just("MONO_TEST");
+        String fallbackValue = "FALLBACK_MESSAGE";
+
+        data.map(str -> { throw new NullPointerException("<<ERROR>>"); })
+            .doOnEach(signal -> log.info("before {}.", signal.toString()))		// before onError(com.gngsn.webClient.reactor.MonoOnErrorXxxTest$MonoException: <<ERROR>>).
+            .onErrorReturn(fallbackValue)										// onError -> onComplete: all Exception will be transformed
+            .doOnEach(signal -> log.info("after {}", signal.toString()))		// it is called twice. (1) after doOnEach_onNext(FALLBACK_MESSAGE). => (2) after onComplete()
+            .subscribe(str -> log.info("fallback message is '{}'.", str.toString()));
+    }
 }
