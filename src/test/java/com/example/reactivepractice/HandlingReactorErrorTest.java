@@ -59,4 +59,15 @@ public class HandlingReactorErrorTest {
         assertThat(valueDropped).isEqualTo(List.of(""));
         assertThat(errorDropped.get(0).getMessage()).isEqualTo("/ by zero");
     }
+
+    @Test
+    public void onErrorMap() {
+        //onErrorMap은 발생한 예외를 다른 예외로 변환합니다.
+        Mono<Integer> data = Mono.<Integer>error(new Exception())
+                                 .onErrorMap(t -> new NullPointerException(t.getMessage()));
+
+        StepVerifier.create(data)
+                    .expectError(NullPointerException.class)
+                    .verify();
+    }
 }
