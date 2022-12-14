@@ -21,4 +21,14 @@ public class HandlingReactorErrorTest {
 
         StepVerifier.create(mono).verifyComplete();
     }
+
+    @Test
+    public void onErrorCompleteIfArithmeticException() {
+        final AtomicInteger datasource = new AtomicInteger(0);
+        Mono<Integer> mono = Mono.just(datasource)
+                                 .map(i -> 100 / i.get())
+                                 .onErrorComplete(ArithmeticException.class);
+
+        StepVerifier.create(mono).verifyComplete();
+    }
 }
