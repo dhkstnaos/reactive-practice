@@ -6,6 +6,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,5 +70,20 @@ public class HandlingReactorErrorTest {
         StepVerifier.create(data)
                     .expectError(NullPointerException.class)
                     .verify();
+    }
+
+    @Test
+    public void onErrorResume() {
+        //onErrorResume() 메소드는 로직 실행 중 예외가 발생했을 때 정상적인 처리로 계속 진행을 위해 fallback 을 지정합니다.
+        Function<Throwable, Mono<String>> fallback = (thr) -> {		// Error occur: '<<ERROR>>'. ignore current element 'MONO_TEST'.
+            return Mono.just("FALLBACK_MESSAGE");
+        };
+
+        Mono<String> data = (Mono<String>) Mono.just("MONO_TEST")
+                                               .map(str -> { throw new NullPointerException("<<ERROR>>"); })
+                                               .doOnEach(signal -> log.info("before {}", signal.toString()))
+                                               .onErrorResume(fallback)
+                                               .doOnEach(signal -> log.info("after {}", signal.toString()))
+                                               .subscribe();
     }
 }
